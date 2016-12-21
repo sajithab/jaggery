@@ -1,5 +1,6 @@
 package org.jaggeryjs.jaggery.core.manager;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jaggeryjs.scriptengine.exceptions.ScriptException;
 import org.jaggeryjs.scriptengine.security.RhinoSecurityDomain;
 
@@ -22,20 +23,24 @@ public class JaggerySecurityDomain implements RhinoSecurityDomain {
         this.servletContext = servletContext;
     }
 
+    @SuppressFBWarnings("PATH_TRAVERSAL_IN")
     public CodeSource getCodeSource() throws ScriptException {
         if (codeSource != null) {
             return codeSource;
         }
+        URL url = null;
         try {
             String contextPath = servletContext.getRealPath("/");
-            if (!contextPath.endsWith(File.separator)) {
-                contextPath += File.separator;
+            if(contextPath == null){
+                url = servletContext.getResource(scriptPath);
+            }else {
+                if (!contextPath.endsWith(File.separator)) {
+                    contextPath += File.separator;
+                }
+                url = new File(contextPath + scriptPath).getCanonicalFile().toURI().toURL();
             }
-            URL url = new File(contextPath + scriptPath).getCanonicalFile().toURI().toURL();
             codeSource = new CodeSource(url, (Certificate[]) null);
             return codeSource;
-        } catch (MalformedURLException e) {
-            throw new ScriptException(e);
         } catch (IOException e) {
             throw new ScriptException(e);
         }

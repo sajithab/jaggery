@@ -1,5 +1,6 @@
 package org.jaggeryjs.hostobjects.file;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
@@ -26,6 +27,7 @@ public class JavaScriptFileManagerImpl implements JavaScriptFileManager {
         }
     }
 
+    @SuppressFBWarnings("PATH_TRAVERSAL_IN")
     @Override
     public File getFile(String uri) throws ScriptException {
         File file;
@@ -48,5 +50,10 @@ public class JavaScriptFileManagerImpl implements JavaScriptFileManager {
         }
 
         return file;
+    }
+
+    @Override
+    public String getDirectoryPath(String path) throws ScriptException {
+        return getFile(path).getAbsolutePath();
     }
 }

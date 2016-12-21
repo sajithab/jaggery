@@ -1,5 +1,6 @@
 package org.jaggeryjs.jaggery.app.mgt;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jaggeryjs.jaggery.core.JaggeryCoreConstants;
@@ -19,7 +20,8 @@ public final class JaggeryDeploymentUtil {
         //disable external instantiation
     }
     
-    public static File getConfig(File webAppFile) {
+    @SuppressFBWarnings("PATH_TRAVERSAL_IN")
+    static File getConfig(File webAppFile) {
         if (webAppFile.isDirectory()) {
             File f = new File(webAppFile + File.separator + JaggeryCoreConstants.JAGGERY_CONF_FILE);
             if (f.exists()) {
@@ -29,18 +31,16 @@ public final class JaggeryDeploymentUtil {
         return null;
     }
 
-    public static void unZip(InputStream is, String destDir) {
+    @SuppressFBWarnings({"PATH_TRAVERSAL_IN", "PATH_TRAVERSAL_IN", "PATH_TRAVERSAL_OUT"})
+    static void unZip(InputStream is, String destDir) {
     	
         try {
             File unzipDestinationDirectory = new File(destDir);
             if (!unzipDestinationDirectory.mkdir()) {
                 log.error("could not create " + destDir);
             }
-
             BufferedOutputStream dest = null;
-
-            ZipInputStream zis = new
-                    ZipInputStream(new BufferedInputStream(is));
+            ZipInputStream zis = new ZipInputStream(new BufferedInputStream(is));
             ZipEntry entry;
             while ((entry = zis.getNextEntry()) != null) {
                 if (entry.isDirectory()) {
